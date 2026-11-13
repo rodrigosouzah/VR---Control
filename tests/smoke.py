@@ -32,14 +32,14 @@ with sync_playwright() as playwright:
 
     def new_record(kind):
         page.get_by_role('button', name='Novo lançamento', exact=True).click()
-        page.get_by_role('combobox', name='Área de gestão', exact=True).select_option(kind)
+        page.get_by_role('combobox', name='Área de Gestão', exact=True).select_option(kind)
         return page.get_by_role('dialog')
 
     def save(dialog):
         dialog.get_by_role('button', name='Salvar lançamento').click()
         expect(page.get_by_role('dialog')).to_have_count(0)
 
-    expect(page.get_by_role('heading', name='Áreas de gestão')).to_be_visible()
+    expect(page.get_by_role('heading', name='Áreas de Gestão')).to_be_visible()
     expect(page.locator('.balance strong')).to_contain_text('128.450,00')
     assert page.locator('.powered-by img').evaluate('(img) => img.complete && img.naturalWidth === 1536')
     print('PASS: dashboard, original logo, calculated financial balance')
@@ -66,7 +66,7 @@ with sync_playwright() as playwright:
     dialog.get_by_label('Estoque mínimo').fill('10')
     dialog.get_by_label('Preço unitário (R$)').fill('20')
     save(dialog)
-    navigate('Insumos e estoque')
+    navigate('Insumos e Estoque')
     page.get_by_role('combobox', name='Filtrar registros').select_option('Em alerta')
     expect(page.locator('tbody tr')).to_have_count(3)
     page.get_by_role('textbox', name='Buscar registros', exact=True).fill('Insumo teste')
@@ -96,7 +96,7 @@ with sync_playwright() as playwright:
     dialog.get_by_label('Talhão', exact=True).fill('Talhão teste')
     dialog.get_by_label('Cultura', exact=True).fill('Soja')
     save(dialog)
-    navigate('Agenda agrícola')
+    navigate('Agenda Agrícola')
     expect(page.locator('.calendar-event').filter(has_text='Atividade teste')).to_be_visible()
     month = page.locator('.calendar-toolbar > strong').inner_text()
     page.get_by_role('button', name='Próximo mês', exact=True).click()
@@ -119,20 +119,20 @@ with sync_playwright() as playwright:
     page.reload(wait_until='networkidle')
     expect(page.locator('.weather strong')).to_have_text('Fazenda de teste')
     page.get_by_role('textbox', name='Buscar em toda a fazenda').fill('receita teste')
-    expect(page.get_by_role('heading', name='Resultados da busca')).to_be_visible()
+    expect(page.get_by_role('heading', name='Resultados da Busca')).to_be_visible()
     expect(page.get_by_role('button', name='Receita teste', exact=False)).to_be_visible()
     page.get_by_role('button', name='Limpar busca', exact=True).click()
     navigate('Relatórios')
-    expect(page.get_by_role('heading', name='Relatórios da operação')).to_be_visible()
+    expect(page.get_by_role('heading', name='Relatórios da Operação')).to_be_visible()
     expect(page.get_by_role('button', name='Baixar CSV')).to_have_count(4)
     print('PASS: settings persistence, global search and reports')
 
-    navigate('Visão geral')
+    navigate('Visão Geral')
     page.screenshot(path='/tmp/vr-control-desktop.png', full_page=True)
     page.set_viewport_size({'width': 390, 'height': 844})
     assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
     page.screenshot(path='/tmp/vr-control-mobile.png', full_page=True, animations='disabled')
-    for name in ['Colheita', 'Insumos e estoque', 'Financeiro', 'Agenda agrícola', 'Relatórios', 'Configurações', 'Central de ajuda', 'Visão geral']:
+    for name in ['Colheita', 'Insumos e Estoque', 'Financeiro', 'Agenda Agrícola', 'Relatórios', 'Configurações', 'Central de Ajuda', 'Visão Geral']:
         navigate(name)
         assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), name
     dialog = new_record('transactions')
