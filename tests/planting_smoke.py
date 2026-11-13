@@ -68,8 +68,10 @@ with sync_playwright() as playwright:
     employee = model()['employees'][0]
     nav('Plantio')
     page.get_by_role('button', name='Adicionar Plantio', exact=True).click()
-    dialog().get_by_label('Lote e Válvula do Registro', exact=True).select_option('467-v01')
-    dialog().get_by_label('Variedade do Registro', exact=True).select_option('Vitória')
+    dialog().get_by_label('Lote', exact=True).select_option('467')
+    expect(dialog().get_by_label('Válvula', exact=True).locator('option')).to_have_count(9)
+    dialog().get_by_label('Válvula', exact=True).select_option('467-v01')
+    dialog().get_by_label('Variedade de Uva', exact=True).select_option('Vitória')
     dialog().get_by_label('Previsão de Colheita do Plantio', exact=True).fill(HARVEST)
     dialog().get_by_label('Quantidade Plantada (mudas)', exact=True).fill('500')
     for i, name, kind, quantity, price in [(1, 'Mudas Teste', 'Mudas', '500', '2'), (2, 'NPK Teste', 'Fertilizantes', '10', '5')]:
@@ -117,12 +119,16 @@ with sync_playwright() as playwright:
     expect(page.locator('.kpi').filter(has_text='Saldo realizado')).to_contain_text(re.compile(r'-R\$\s*1\.200,00'))
     nav('Plantio')
     page.get_by_role('button', name=f"Editar registro {planting['id']}", exact=True).click()
-    dialog().get_by_label('Lote e Válvula do Registro', exact=True).select_option('463-v01')
-    dialog().get_by_label('Variedade do Registro', exact=True).select_option('Sugar Crisp')
+    dialog().get_by_label('Lote', exact=True).select_option('463')
+    expect(dialog().get_by_label('Válvula', exact=True)).to_have_value('')
+    expect(dialog().get_by_label('Variedade de Uva', exact=True)).to_have_value('')
+    expect(dialog().get_by_label('Válvula', exact=True).locator('option')).to_have_count(11)
+    dialog().get_by_label('Válvula', exact=True).select_option('463-v01')
+    dialog().get_by_label('Variedade de Uva', exact=True).select_option('Sugar Crisp')
     dialog().get_by_role('button', name='Remover insumo 2', exact=True).click()
     save()
     entries = model()['entries']
-    assert all(e['valveId'] == '463-v01' for e in entries)
+    assert all(e['valveId'] == '463-v01' and e['lot'] == '463' for e in entries)
     assert len(entries) == 3 and sum(e['kind'] == 'labor' for e in entries) == 1
     assert all(e['variety'] == 'Sugar Crisp' for e in entries)
     expect(page.locator('.v-kpi').filter(has_text='Custo Realizado')).to_contain_text('1.320,00')

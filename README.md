@@ -45,6 +45,8 @@ O painel tem nove cards: **Plantio, Planilha de Colheita, Planilha de Insumos, �
 - **Água e financeiro:** volume de irrigação em m³ e custo por válvula. Custos fixos e outros lançamentos gerais permanecem no financeiro. Custos de produção são apropriados por realização; caixa recebe apenas pagamentos/recebimentos confirmados. A mesma linha vinculada é reutilizada, sem criar uma segunda despesa automática.
 - **Clima:** consulta Open-Meteo para as coordenadas de Petrolina, PE, com fonte, horário, temperatura, vento e previsão de chuva e sete dias. Atualização a cada dez minutos enquanto a tela está aberta, cache identificado e tratamento de indisponibilidade. Coordenadas são configuráveis; geolocalização só é solicitada ao usar o botão correspondente. Não há valores meteorológicos inventados como fallback.
 
+Todos os lançamentos operacionais usam seletores separados de **Lote → Válvula → Variedade de Uva**. Trocar o lote limpa a válvula anterior e restringe suas opções ao lote selecionado. Compras, financeiro, agenda e o cadastro de colaboradores também oferecem a atribuição; registros compartilhados podem permanecer como Geral. Uma mudança de atribuição em um apontamento vinculado o torna independente, preservando a operação original.
+
 ## Dados e limites da primeira versão
 
 O app inicia com o cadastro dos 18 números de válvula e suas variedades, **sem importar nomes de funcionários, valores ou registros manuscritos das imagens**. Os registros ficam no `localStorage`, chave `vr-control-v1`; documentos ficam no IndexedDB `vr-control-documents`. Migrações preservam os lançamentos anteriormente salvos. Registros gerais de colheita de versões anteriores estão em **Registros Anteriores**.

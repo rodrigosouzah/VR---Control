@@ -34,7 +34,11 @@ with sync_playwright() as playwright:
     def new_record(kind):
         page.get_by_role('button', name='Novo lançamento', exact=True).click()
         page.get_by_role('combobox', name='Área de Gestão', exact=True).select_option(kind)
-        return page.get_by_role('dialog')
+        form = page.get_by_role('dialog')
+        form.get_by_label('Lote', exact=True).select_option('463')
+        form.get_by_label('Válvula', exact=True).select_option('463-v10')
+        form.get_by_label('Variedade de Uva', exact=True).select_option('Sugar Crisp')
+        return form
 
     def save(dialog):
         dialog.get_by_role('button', name='Salvar lançamento').click()
@@ -59,6 +63,8 @@ with sync_playwright() as playwright:
     dialog.get_by_label('Status', exact=True).select_option('Pendente')
     save(dialog)
     expect(page.locator('.balance strong')).to_contain_text('1.000,50')
+    saved_scope = next(row for row in data()['transactions'] if row['name'] == 'Receita teste')
+    assert saved_scope['lot'] == '463' and saved_scope['valveId'] == '463-v10' and saved_scope['variety'] == 'Sugar Crisp'
     print('PASS: transaction creation, exact totals, reload persistence, pending excluded')
 
     dialog = new_record('inventory')
@@ -79,11 +85,15 @@ with sync_playwright() as playwright:
     with open(download.path(), encoding='utf-8-sig') as handle:
         rows = list(csv.DictReader(io.StringIO(handle.read()), delimiter=';'))
     assert len(rows) == 1 and rows[0]['name'] == 'Insumo teste'
+    saved_scope = next(row for row in data()['inventory'] if row['name'] == 'Insumo teste')
+    assert saved_scope['lot'] == '463' and saved_scope['valveId'] == '463-v10' and saved_scope['variety'] == 'Sugar Crisp'
     print('PASS: inventory registration, low-stock calculation, search/filter, filtered CSV')
 
     dialog = new_record('harvest')
     dialog.get_by_label('Nome do talhão').fill('Talhão teste')
-    dialog.get_by_label('Cultura', exact=True).fill('Soja')
+    dialog.get_by_label('Lote', exact=True).select_option('467')
+    dialog.get_by_label('Válvula', exact=True).select_option('467-v01')
+    dialog.get_by_label('Variedade de Uva', exact=True).select_option('Vitória')
     dialog.get_by_label('Área (ha)').fill('10')
     dialog.get_by_label('Produção (t)').fill('25')
     dialog.get_by_label('Status', exact=True).select_option('Concluída')
@@ -95,8 +105,9 @@ with sync_playwright() as playwright:
 
     dialog = new_record('tasks')
     dialog.get_by_label('Nome da atividade').fill('Atividade teste')
-    dialog.get_by_label('Talhão', exact=True).fill('Talhão teste')
-    dialog.get_by_label('Cultura', exact=True).fill('Soja')
+    dialog.get_by_label('Lote', exact=True).select_option('467')
+    dialog.get_by_label('Válvula', exact=True).select_option('467-v01')
+    dialog.get_by_label('Variedade de Uva', exact=True).select_option('Vitória')
     save(dialog)
     navigate('Agenda Agrícola')
     expect(page.locator('.calendar-event').filter(has_text='Atividade teste')).to_be_visible()

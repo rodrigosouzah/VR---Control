@@ -58,7 +58,8 @@ with sync_playwright() as playwright:
         expect(dialog()).to_have_count(0)
 
     def valve_field(value='467-v01'):
-        dialog().get_by_role('combobox', name='Lote e Válvula do Registro').select_option(value)
+        dialog().get_by_role('combobox', name='Lote', exact=True).select_option(value.split('-')[0])
+        dialog().get_by_role('combobox', name='Válvula', exact=True).select_option(value)
 
     def entry_id(kind, name=None):
         return next(e['id'] for e in model()['entries'] if e['kind'] == kind and (not name or e['name'] == name))
@@ -78,6 +79,8 @@ with sync_playwright() as playwright:
     for name, link, daily in [('Profissional Fixo Teste', 'Fixo', '100'), ('Profissional Avulso Teste', 'Avulso', '80')]:
         page.get_by_role('button', name='Novo Colaborador', exact=True).click()
         dialog().get_by_label('Nome do Profissional', exact=True).fill(name)
+        dialog().get_by_label('Lote', exact=True).select_option('467' if link == 'Fixo' else '463')
+        dialog().get_by_label('Válvula', exact=True).select_option('467-v02' if link == 'Fixo' else '463-v10')
         dialog().get_by_label('Tipo de Vínculo', exact=True).select_option(link)
         dialog().get_by_label('Função Principal', exact=True).fill('Colheita')
         dialog().get_by_label('Valor da Diária (R$)', exact=True).fill(daily)
@@ -85,6 +88,7 @@ with sync_playwright() as playwright:
         expect(dialog()).to_have_count(0)
     people = model()['employees']
     assert [p['type'] for p in people] == ['Fixo', 'Avulso']
+    assert people[0]['valveId'] == '467-v02' and people[1]['valveId'] == '463-v10'
 
     navigate('Colheita')
     page.get_by_role('button', name='Diário de Colheita', exact=True).click()
