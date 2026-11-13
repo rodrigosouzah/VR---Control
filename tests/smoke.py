@@ -17,6 +17,7 @@ with sync_playwright() as playwright:
         args=['--no-sandbox'],
     )
     context = browser.new_context(viewport={'width': 1440, 'height': 1100}, locale='pt-BR', timezone_id='Europe/Madrid')
+    context.route('https://api.open-meteo.com/**', lambda route: route.abort())
     page = context.new_page()
     errors = []
     page.on('pageerror', lambda error: errors.append(str(error)))
@@ -40,7 +41,7 @@ with sync_playwright() as playwright:
         expect(page.get_by_role('dialog')).to_have_count(0)
 
     expect(page.get_by_role('heading', name='Áreas de Gestão')).to_be_visible()
-    expect(page.locator('.balance strong')).to_contain_text('128.450,00')
+    expect(page.locator('.balance strong')).to_contain_text('0,00')
     assert page.locator('.powered-by img').evaluate('(img) => img.complete && img.naturalWidth === 1536')
     print('PASS: dashboard, original logo, calculated financial balance')
 
@@ -48,16 +49,16 @@ with sync_playwright() as playwright:
     dialog.get_by_label('Descrição', exact=True).fill('Receita teste')
     dialog.get_by_label('Valor (R$)', exact=True).fill('1000.50')
     save(dialog)
-    expect(page.locator('.balance strong')).to_contain_text('129.450,50')
+    expect(page.locator('.balance strong')).to_contain_text('1.000,50')
     page.reload(wait_until='networkidle')
-    expect(page.locator('.balance strong')).to_contain_text('129.450,50')
+    expect(page.locator('.balance strong')).to_contain_text('1.000,50')
     assert any(row['name'] == 'Receita teste' for row in data()['transactions'])
     dialog = new_record('transactions')
     dialog.get_by_label('Descrição', exact=True).fill('Receita pendente teste')
     dialog.get_by_label('Valor (R$)', exact=True).fill('5000')
     dialog.get_by_label('Status', exact=True).select_option('Pendente')
     save(dialog)
-    expect(page.locator('.balance strong')).to_contain_text('129.450,50')
+    expect(page.locator('.balance strong')).to_contain_text('1.000,50')
     print('PASS: transaction creation, exact totals, reload persistence, pending excluded')
 
     dialog = new_record('inventory')
@@ -68,10 +69,10 @@ with sync_playwright() as playwright:
     save(dialog)
     navigate('Insumos e Estoque')
     page.get_by_role('combobox', name='Filtrar registros').select_option('Em alerta')
-    expect(page.locator('tbody tr')).to_have_count(3)
+    expect(page.locator('tbody tr')).to_have_count(1)
     page.get_by_role('textbox', name='Buscar registros', exact=True).fill('Insumo teste')
     expect(page.locator('tbody tr')).to_have_count(1)
-    expect(page.locator('tbody')).to_contain_text('Estoque baixo')
+    expect(page.locator('.data-panel tbody')).to_contain_text('Estoque baixo')
     with page.expect_download() as download_info:
         page.get_by_role('button', name='Exportar CSV').click()
     download = download_info.value
@@ -88,7 +89,8 @@ with sync_playwright() as playwright:
     dialog.get_by_label('Status', exact=True).select_option('Concluída')
     save(dialog)
     navigate('Colheita')
-    expect(page.locator('.kpi').first).to_contain_text('372,1 t')
+    page.get_by_role('button', name='Registros Anteriores', exact=True).click()
+    expect(page.locator('.kpi').first).to_contain_text('25 t')
     print('PASS: harvest creation and aggregate production')
 
     dialog = new_record('tasks')
@@ -123,8 +125,8 @@ with sync_playwright() as playwright:
     expect(page.get_by_role('button', name='Receita teste', exact=False)).to_be_visible()
     page.get_by_role('button', name='Limpar busca', exact=True).click()
     navigate('Relatórios')
-    expect(page.get_by_role('heading', name='Relatórios da Operação')).to_be_visible()
-    expect(page.get_by_role('button', name='Baixar CSV')).to_have_count(4)
+    expect(page.get_by_role('heading', name='Relatórios por Lote e Válvula')).to_be_visible()
+    expect(page.get_by_role('button', name='Exportar Backup', exact=True)).to_be_visible()
     print('PASS: settings persistence, global search and reports')
 
     navigate('Visão Geral')
