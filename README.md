@@ -30,7 +30,11 @@ Em ambientes que não permitem escrever no cache padrão do npm, acrescente `--c
 
 ## Organização
 
-O painel tem oito cards: **Planilha de Colheita, Planilha de Insumos, Água, Fruta, Relatórios, Folhas de Funcionários, Colaboradores e Fluxo Financeiro**.
+O painel tem nove cards: **Plantio, Planilha de Colheita, Planilha de Insumos, Água, Fruta, Relatórios, Folhas de Funcionários, Colaboradores e Fluxo Financeiro**. Plantio aparece antes de Colheita também no menu.
+
+- **Plantio:** calendário diário, semanal e mensal por lote e válvula, lista suspensa de variedades, previsão de colheita, quantidade plantada e múltiplos insumos com tipo, quantidade, unidade e custo. A equipe utiliza os colaboradores cadastrados, com horas, diárias e pagamentos. Insumos e mão de obra são apontamentos vinculados: editar ou excluir o plantio atualiza o grupo inteiro, sem duplicar custos. Registros planejados não viram despesas realizadas. A previsão de colheita gera um evento de calendário; não se presume um ciclo de produção. Para mudar a válvula ou data de um insumo/funcionário vinculado, edite o plantio principal.
+
+- **Tempo por dia no Plantio:** ícones clicáveis em todos os dias abrem temperatura mínima/máxima, chance e volume de chuva, para a localização configurada. A Open-Meteo é consultada com horizonte de até 16 dias. Datas sem resposta, passadas ou além do horizonte são identificadas como indisponíveis; o app não extrapola previsões. Dados salvos e falhas de atualização são sinalizados. A tela inicial continua mostrando os próximos sete dias. A consulta e o cache são compartilhados entre o painel e o calendário, com atualização a cada dez minutos e botão para atualizar manualmente.
 
 - **Lotes e válvulas:** 467 tem oito válvulas; 463 tem dez. A identidade inclui lote e número da válvula, evitando mistura entre números iguais de lotes diferentes. As variedades iniciais seguem a referência fornecida: 467 V.01 Sugar Crisp, V.02–08 Vitória; 463 V.01–02 e V.04 Timpson, V.03 e V.05–07 Vitória, V.08–10 Sugar Crisp.
 - **Colheita:** calendário diário, semanal e mensal com números de válvula clicáveis. A ficha reúne produção, equipe, custos, água, vendas, previsões de poda e colheita e anotações diárias/semanais. Metadados e lançamentos podem ser editados. Mudar a variedade atual da válvula não reescreve a variedade histórica salva nos lançamentos.
@@ -68,6 +72,7 @@ Com o app em execução, usando Python com `playwright` e Chromium instalados:
 ```sh
 python tests/smoke.py
 python tests/vineyard_smoke.py
+python tests/planting_smoke.py
 ```
 
 Use `BASE_URL` para mudar a URL padrão de teste e `CHROMIUM_PATH` para o executável do navegador. Os testes usam contextos isolados, sem alterar uma sessão de usuário. Cobrem cadastros gerais, migração, isolamento por válvula/lote, horários, meia diária, ausência, edição sem duplicação, adubação planejada/realizada, anexos, venda com desconto e recebimento parcial, caixa, backup, parâmetros da previsão, falha de clima e navegação em celular.

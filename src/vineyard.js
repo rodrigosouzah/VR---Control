@@ -12,6 +12,7 @@ export const initialVineyard = {
   entries: [], employees: [],
 };
 export const entryKinds = {
+  planting: 'Plantio',
   fertilization: 'Adubação', input: 'Insumo', material: 'Matéria-Prima / Outro Custo',
   labor: 'Mão de Obra', harvest: 'Colheita', sale: 'Venda de Fruta', water: 'Água', note: 'Anotação', pruning: 'Poda',
 };

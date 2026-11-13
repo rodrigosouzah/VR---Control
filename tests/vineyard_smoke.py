@@ -63,7 +63,7 @@ with sync_playwright() as playwright:
     def entry_id(kind, name=None):
         return next(e['id'] for e in model()['entries'] if e['kind'] == kind and (not name or e['name'] == name))
 
-    expect(page.locator('.module-card')).to_have_count(8)
+    expect(page.locator('.module-card')).to_have_count(9)
     expect(page.get_by_role('region', name='Previsão do Tempo')).to_contain_text('31°C')
     assert weather_urls and 'latitude=-9.3891' in weather_urls[0] and 'longitude=-40.5031' in weather_urls[0]
     page.get_by_role('button', name='Próximos 7 Dias').click()
@@ -72,7 +72,7 @@ with sync_playwright() as playwright:
     assert len(valves) == len({v['id'] for v in valves}) == 18
     assert [v['variety'] for v in valves if v['lot'] == '467'] == ['Sugar Crisp'] + ['Vitória'] * 7
     assert [v['variety'] for v in valves if v['lot'] == '463'] == ['Timpson', 'Timpson', 'Vitória', 'Timpson', 'Vitória', 'Vitória', 'Vitória', 'Sugar Crisp', 'Sugar Crisp', 'Sugar Crisp']
-    print('PASS: eight cards, exact registry, correct Petrolina API parameters and seven-day forecast')
+    print('PASS: nine cards, exact registry, correct Petrolina API parameters and seven-day forecast')
 
     navigate('Colaboradores')
     for name, link, daily in [('Profissional Fixo Teste', 'Fixo', '100'), ('Profissional Avulso Teste', 'Avulso', '80')]:
