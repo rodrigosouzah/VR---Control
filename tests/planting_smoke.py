@@ -47,6 +47,8 @@ with sync_playwright() as playwright:
     expect(page.locator('.module-card').first).to_contain_text('Plantio')
     nav('Plantio')
     expect(page.get_by_role('heading', name='Calendário de Plantio', exact=True)).to_be_visible()
+    expect(page.locator('.v-kpi').first).to_have_text('Válvulas18')
+    expect(page.locator('.v-calendar .panel-title')).not_to_contain_text('Clique em V.01')
     assert requests and 'forecast_days=16' in requests[0]
     assert page.locator('.v-day-weather').count() == page.locator('.v-calendar-day').count()
     page.get_by_role('button', name=re.compile(f'Tempo em {TODAY}: Chuva')).click()
@@ -71,6 +73,12 @@ with sync_playwright() as playwright:
     employee = model()['employees'][0]
     nav('Plantio')
     page.get_by_role('button', name='Adicionar Plantio', exact=True).click()
+    expect(dialog().get_by_label('Data do Registro', exact=True)).to_have_count(0)
+    expect(dialog().get_by_label('Descrição do Plantio', exact=True)).to_have_count(0)
+    expect(dialog().get_by_label('Previsão de Colheita do Plantio', exact=True)).to_have_attribute('min', TODAY)
+    dialog().get_by_role('button', name='Cancelar', exact=True).click()
+    page.get_by_label('Ir para Data', exact=True).fill(past)
+    page.get_by_role('button', name=f'Adicionar registro em {past}', exact=True).click()
     dialog().get_by_label('Lote', exact=True).select_option('467')
     expect(dialog().get_by_label('Válvula', exact=True).locator('option')).to_have_count(9)
     dialog().get_by_label('Válvula', exact=True).select_option('467-v01')
@@ -94,6 +102,8 @@ with sync_playwright() as playwright:
     planting = next(e for e in model()['entries'] if e['kind'] == 'planting')
     children = [e for e in model()['entries'] if e.get('groupId') == planting['id']]
     assert len(children) == 3 and all(e['status'] == 'Planejado' for e in children)
+    assert planting['date'] == past and planting['name'] == 'Plantio'
+    assert all(e['date'] == past for e in children)
     assert planting['variety'] == 'Vitória' and planting['expectedHarvestDate'] == HARVEST
     expect(page.locator('.v-kpi').filter(has_text='Custo Realizado')).to_contain_text('0,00')
     page.get_by_label('Ir para Data', exact=True).fill(HARVEST)

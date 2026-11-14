@@ -115,9 +115,9 @@ with sync_playwright() as p:
     print('PASS: employee photo, free fixed-worker hours/breaks, duplicate daily attendance protection and medical attachment')
 
     nav('Plantio')
-    page.get_by_role('button', name='Adicionar Plantio', exact=True).click()
+    page.get_by_label('Ir para Data', exact=True).fill(START)
+    page.get_by_role('button', name=f'Adicionar registro em {START}', exact=True).click()
     scope()
-    dlg().get_by_label('Data do Registro', exact=True).fill(START)
     dlg().get_by_label('Previsão de Colheita do Plantio', exact=True).fill(END)
     dlg().get_by_label('Situação do Registro', exact=True).select_option('Realizado')
     save()
