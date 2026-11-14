@@ -2,7 +2,17 @@
 
 Aplicativo para a gestão de uma fazenda produtora de uvas em Petrolina, PE, baseado no protótipo fornecido. Preserva a paleta verde, os fundos claros e os destaques âmbar, azul e lilás. A imagem original está em `logos/Logo2.png`.
 
-## Desenvolvimento
+## Demonstração Preenchida
+
+A cópia para testes está em **[VR Control — Demo](https://rodrigosouzah.github.io/VR---Control/demo/)**. O app principal continua no endereço original. O rodapé do principal também oferece o link **Testar com Dados Fictícios**.
+
+Na primeira visita, a demonstração abre com seis meses de registros inventados, relativos ao dia da abertura: 18 válvulas com ciclos anteriores e atuais, plantios futuros, colheitas com equipes, adubações, notas de manejo, serviços, diesel, insumos, despesas fixas, vendas recebidas/parciais/vencidas, visitas realizadas/canceladas/agendadas e agenda. Há 10 profissionais fictícios, fixos e avulsos, um desligado, fichas completas, avatares ilustrativos, frequência, ausências, anexos de exemplo e pagamentos vinculados aos custos de mão de obra.
+
+Os exemplos podem ser editados e excluídos; alterações persistem após recarregar. **Restaurar Dados de Exemplo** pede confirmação e recria somente a demonstração, com datas relativas ao dia da restauração. O clima e o histórico de chuva da demo são simulados, claramente identificados, e funcionam sem consultar a Open-Meteo. Produtos, doses, datas e ciclos não são orientações agronômicas. Nomes e contatos não são dados reais. Os PDFs de exemplo não possuem valor fiscal ou médico.
+
+O HTML `demo/index.html` seleciona o modo de teste. Nenhum parâmetro da URL transforma o app principal em demonstração. Dados da demo usam `vr-control-demo-v1` e o IndexedDB `vr-control-demo-documents`; o principal mantém `vr-control-v1` e `vr-control-documents`. A restauração não remove dados ou anexos do principal. Cada navegador tem a própria cópia de teste. O build gera ambas as páginas e seus recursos compartilhados; a publicação deve incluir a pasta `demo/` e `assets/`.
+
+## Desenvolvimento Local
 
 Requer Node.js 22.12+ (validado com Node.js 24) e npm.
 
@@ -84,6 +94,7 @@ python tests/smoke.py
 python tests/vineyard_smoke.py
 python tests/planting_smoke.py
 python tests/management_smoke.py
+python tests/demo_smoke.py
 ```
 
 Use `BASE_URL` para mudar a URL padrão de teste e `CHROMIUM_PATH` para o executável do navegador. Os testes usam contextos isolados, sem alterar uma sessão de usuário. Cobrem cadastros gerais, migração, isolamento por válvula/lote, horários, meia diária, ausência, edição sem duplicação, adubação planejada/realizada, anexos, venda com desconto e recebimento parcial, caixa, backup, parâmetros da previsão, falha de clima e navegação em celular.

@@ -1,4 +1,5 @@
-const DATABASE = 'vr-control-documents';
+import { DOCUMENT_DATABASE, IS_DEMO } from './runtime';
+const DATABASE = DOCUMENT_DATABASE;
 function database() {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DATABASE, 1);
@@ -34,5 +35,18 @@ export async function documentBlob(id) {
   return new Promise((resolve, reject) => {
     const request = db.transaction('documents').objectStore('documents').get(id);
     request.onsuccess = () => resolve(request.result?.blob || null); request.onerror = reject;
+  }).finally(() => db.close());
+}
+
+export async function installDemoDocuments(documents, reset = false) {
+  if (!IS_DEMO) throw new Error('Anexos fictícios só podem ser gravados na demonstração.');
+  const db = await database();
+  await new Promise((resolve, reject) => {
+    const transaction = db.transaction('documents', 'readwrite');
+    const store = transaction.objectStore('documents');
+    if (reset) store.clear();
+    for (const document of documents) store.put(document);
+    transaction.oncomplete = resolve;
+    transaction.onerror = () => reject(new Error('Não foi possível preparar os anexos fictícios.'));
   }).finally(() => db.close());
 }
