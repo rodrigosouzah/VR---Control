@@ -48,7 +48,10 @@ with sync_playwright() as playwright:
     def navigate(name):
         if page.viewport_size['width'] <= 820:
             page.get_by_role('button', name='Abrir menu', exact=True).click()
-        page.locator('aside').get_by_role('button', name=name, exact=True).click()
+        target = {'Colaboradores': 'Controle de Funcionários', 'Folhas de Funcionários': 'Controle de Funcionários', 'Fruta': 'Vendas', 'Água': 'Serviços e Custos'}.get(name, name)
+        page.locator('aside').get_by_role('button', name=target, exact=True).click()
+        if name in ['Colaboradores', 'Folhas de Funcionários']:
+            page.get_by_role('tab', name='Colaboradores' if name == 'Colaboradores' else 'Trabalhos por Válvula', exact=True).click()
 
     def dialog():
         return page.get_by_role('dialog')
@@ -77,7 +80,7 @@ with sync_playwright() as playwright:
 
     navigate('Colaboradores')
     for name, link, daily in [('Profissional Fixo Teste', 'Fixo', '100'), ('Profissional Avulso Teste', 'Avulso', '80')]:
-        page.get_by_role('button', name='Novo Colaborador', exact=True).click()
+        page.get_by_role('button', name='Cadastrar Funcionário', exact=True).click()
         dialog().get_by_label('Nome do Profissional', exact=True).fill(name)
         dialog().get_by_label('Lote', exact=True).select_option('467' if link == 'Fixo' else '463')
         dialog().get_by_label('Válvula', exact=True).select_option('467-v02' if link == 'Fixo' else '463-v10')
@@ -163,12 +166,12 @@ with sync_playwright() as playwright:
     assert len([e for e in model()['entries'] if e['kind'] == 'fertilization']) == 1
     print('PASS: fertilization schedule, actual vs planned, payment confirmation and persistent invoice attachment')
 
-    navigate('Água')
-    page.get_by_role('button', name='Novo Registro', exact=True).click()
+    navigate('Serviços e Custos')
+    page.get_by_role('button', name='Registrar Diesel', exact=True).click()
     valve_field()
-    dialog().get_by_label('Descrição / Produto', exact=True).fill('Irrigação Teste')
-    dialog().get_by_label('Volume de Água (m³)', exact=True).fill('2')
-    dialog().get_by_label('Custo por m³ (R$)', exact=True).fill('3')
+    dialog().get_by_label('Descrição / Produto', exact=True).fill('Diesel Teste')
+    dialog().get_by_label('Litros de Diesel', exact=True).fill('2')
+    dialog().get_by_label('Preço por Litro (R$)', exact=True).fill('3')
     save()
 
     navigate('Fruta')

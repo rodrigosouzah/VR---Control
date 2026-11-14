@@ -26,7 +26,10 @@ with sync_playwright() as playwright:
     def navigate(name):
         if page.viewport_size['width'] <= 820:
             page.get_by_role('button', name='Abrir menu', exact=True).click()
-        page.locator('aside').get_by_role('button', name=name, exact=True).click()
+        target = {'Colaboradores': 'Controle de Funcionários', 'Folhas de Funcionários': 'Controle de Funcionários', 'Fruta': 'Vendas', 'Água': 'Serviços e Custos'}.get(name, name)
+        page.locator('aside').get_by_role('button', name=target, exact=True).click()
+        if name in ['Colaboradores', 'Folhas de Funcionários']:
+            page.get_by_role('tab', name='Colaboradores' if name == 'Colaboradores' else 'Trabalhos por Válvula', exact=True).click()
 
     def data():
         return page.evaluate("JSON.parse(localStorage.getItem('vr-control-v1'))")
@@ -44,25 +47,25 @@ with sync_playwright() as playwright:
         dialog.get_by_role('button', name='Salvar lançamento').click()
         expect(page.get_by_role('dialog')).to_have_count(0)
 
-    expect(page.get_by_role('heading', name='Áreas de Gestão')).to_be_visible()
-    expect(page.locator('.balance strong')).to_contain_text('0,00')
-    assert page.locator('.powered-by img').evaluate('(img) => img.complete && img.naturalWidth === 1536')
+    expect(page.get_by_role('heading', name='Como Estão as Válvulas?')).to_be_visible()
+    expect(page.locator('[data-dashboard-widget="cash"] strong')).to_contain_text('0,00')
+    assert page.locator('.powered-by').count() == 0
     print('PASS: dashboard, original logo, calculated financial balance')
 
     dialog = new_record('transactions')
     dialog.get_by_label('Descrição', exact=True).fill('Receita teste')
     dialog.get_by_label('Valor (R$)', exact=True).fill('1000.50')
     save(dialog)
-    expect(page.locator('.balance strong')).to_contain_text('1.000,50')
+    expect(page.locator('[data-dashboard-widget="cash"] strong')).to_contain_text('1.000,50')
     page.reload(wait_until='networkidle')
-    expect(page.locator('.balance strong')).to_contain_text('1.000,50')
+    expect(page.locator('[data-dashboard-widget="cash"] strong')).to_contain_text('1.000,50')
     assert any(row['name'] == 'Receita teste' for row in data()['transactions'])
     dialog = new_record('transactions')
     dialog.get_by_label('Descrição', exact=True).fill('Receita pendente teste')
     dialog.get_by_label('Valor (R$)', exact=True).fill('5000')
     dialog.get_by_label('Status', exact=True).select_option('Pendente')
     save(dialog)
-    expect(page.locator('.balance strong')).to_contain_text('1.000,50')
+    expect(page.locator('[data-dashboard-widget="cash"] strong')).to_contain_text('1.000,50')
     saved_scope = next(row for row in data()['transactions'] if row['name'] == 'Receita teste')
     assert saved_scope['lot'] == '463' and saved_scope['valveId'] == '463-v10' and saved_scope['variety'] == 'Sugar Crisp'
     print('PASS: transaction creation, exact totals, reload persistence, pending excluded')
@@ -75,9 +78,9 @@ with sync_playwright() as playwright:
     save(dialog)
     navigate('Insumos e Estoque')
     page.get_by_role('combobox', name='Filtrar registros').select_option('Em alerta')
-    expect(page.locator('tbody tr')).to_have_count(1)
+    expect(page.locator('.data-panel tbody tr')).to_have_count(1)
     page.get_by_role('textbox', name='Buscar registros', exact=True).fill('Insumo teste')
-    expect(page.locator('tbody tr')).to_have_count(1)
+    expect(page.locator('.data-panel tbody tr')).to_have_count(1)
     expect(page.locator('.data-panel tbody')).to_contain_text('Estoque baixo')
     with page.expect_download() as download_info:
         page.get_by_role('button', name='Exportar CSV').click()

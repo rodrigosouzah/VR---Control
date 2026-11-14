@@ -33,7 +33,10 @@ with sync_playwright() as playwright:
     def model(): return page.evaluate("JSON.parse(localStorage.getItem('vr-control-v1')).vineyard")
     def nav(name):
         if page.viewport_size['width'] <= 820: page.get_by_role('button', name='Abrir menu', exact=True).click()
-        page.locator('aside').get_by_role('button', name=name, exact=True).click()
+        target = {'Colaboradores': 'Controle de Funcionários', 'Folhas de Funcionários': 'Controle de Funcionários', 'Fruta': 'Vendas', 'Água': 'Serviços e Custos'}.get(name, name)
+        page.locator('aside').get_by_role('button', name=target, exact=True).click()
+        if name in ['Colaboradores', 'Folhas de Funcionários']:
+            page.get_by_role('tab', name='Colaboradores' if name == 'Colaboradores' else 'Trabalhos por Válvula', exact=True).click()
     def dialog(): return page.get_by_role('dialog')
     def save():
         dialog().get_by_role('button', name='Salvar Registro', exact=True).click()
@@ -60,7 +63,7 @@ with sync_playwright() as playwright:
     print('PASS: Plantio precedes Colheita; each calendar day has a forecast icon; valid forecast and unavailable past dates are distinguished')
 
     nav('Colaboradores')
-    page.get_by_role('button', name='Novo Colaborador', exact=True).click()
+    page.get_by_role('button', name='Cadastrar Funcionário', exact=True).click()
     dialog().get_by_label('Nome do Profissional', exact=True).fill('Equipe Plantio Teste')
     dialog().get_by_label('Valor da Diária (R$)', exact=True).fill('120')
     dialog().get_by_label('Função Principal', exact=True).fill('Plantio')

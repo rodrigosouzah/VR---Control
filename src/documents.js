@@ -29,3 +29,10 @@ export async function openDocument(document) {
   const a = window.document.createElement('a'); a.href = url; a.download = document.name; a.click();
   setTimeout(() => URL.revokeObjectURL(url), 20000);
 }
+export async function documentBlob(id) {
+  const db = await database();
+  return new Promise((resolve, reject) => {
+    const request = db.transaction('documents').objectStore('documents').get(id);
+    request.onsuccess = () => resolve(request.result?.blob || null); request.onerror = reject;
+  }).finally(() => db.close());
+}
